@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Domain Swap</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1><iconify-icon icon="mdi:swap-horizontal-circle" width="28"></iconify-icon> Domain Swap</h1>
+    
+    <div class="add-section">
+      <h2>Add / Edit Redirect</h2>
+      <input type="hidden" id="editId" value="">
+      <div class="form-group">
+        <label for="fromDomain">From (domain):</label>
+        <input type="text" id="fromDomain" placeholder="domain1.com, domain2.com">
+        <small>Enter origin domains separated by commas</small>
+      </div>
+      
+      <div class="form-group">
+        <label for="toDomain">To (domain):</label>
+        <input type="text" id="toDomain" placeholder="new-domain.com">
+        <small>Enter destination domain</small>
+      </div>
+      
+      <div class="form-actions" style="display: flex; gap: 8px;">
+        <button id="addButton" class="btn btn-primary"><iconify-icon icon="mdi:plus-circle" width="20"></iconify-icon> <span id="addBtnText">Add Redirect</span></button>
+        <button id="cancelEditButton" class="btn btn-secondary" style="display: none;">Cancel</button>
+      </div>
+    </div>
+    
+    <div class="list-section">
+      <h2>Configured Redirects</h2>
+      <div id="redirectsList"></div>
+      <div id="emptyMessage" class="empty-message">No redirects configured</div>
+    </div>
+    
+    <div class="footer">
+      <button id="exportButton" class="btn btn-secondary"><iconify-icon icon="mdi:download" width="18"></iconify-icon> Export</button>
+      <button id="importButton" class="btn btn-secondary"><iconify-icon icon="mdi:upload" width="18"></iconify-icon> Import</button>
+      <input type="file" id="importFile" accept=".json" style="display: none;">
+    </div>
+  </div>
+  
+  <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
