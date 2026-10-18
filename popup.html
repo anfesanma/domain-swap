@@ -8,43 +8,100 @@
 </head>
 <body>
   <div class="container">
-    <h1><iconify-icon icon="mdi:swap-horizontal-circle" width="28"></iconify-icon> Domain Swap</h1>
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-wrapper">
+        <div class="brand-icon-clay" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
+          </svg>
+        </div>
+        <h1>Domain Swap</h1>
+      </div>
+      <span class="header-badge">v1.0.0</span>
+    </header>
     
-    <div class="add-section">
-      <h2>Add / Edit Redirect</h2>
+    <!-- Add / Edit Redirect Section -->
+    <section class="add-section" aria-labelledby="add-section-heading">
+      <div class="section-header">
+        <h2 id="add-section-heading">
+          <span class="section-indicator"></span>
+          Add / Edit Redirect
+        </h2>
+      </div>
+      
       <input type="hidden" id="editId" value="">
+      
       <div class="form-group">
-        <label for="fromDomain">From (domain):</label>
-        <input type="text" id="fromDomain" placeholder="domain1.com, domain2.com">
+        <label for="fromDomain">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+          From (domain):
+        </label>
+        <input type="text" id="fromDomain" placeholder="e.g. domain1.com, domain2.com" autocomplete="off" spellcheck="false">
         <small>Enter origin domains separated by commas</small>
       </div>
       
       <div class="form-group">
-        <label for="toDomain">To (domain):</label>
-        <input type="text" id="toDomain" placeholder="new-domain.com">
+        <label for="toDomain">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          To (domain):
+        </label>
+        <input type="text" id="toDomain" placeholder="e.g. new-destination.com" autocomplete="off" spellcheck="false">
         <small>Enter destination domain</small>
       </div>
       
-      <div class="form-actions" style="display: flex; gap: 8px;">
-        <button id="addButton" class="btn btn-primary"><iconify-icon icon="mdi:plus-circle" width="20"></iconify-icon> <span id="addBtnText">Add Redirect</span></button>
-        <button id="cancelEditButton" class="btn btn-secondary" style="display: none;">Cancel</button>
+      <div class="form-actions">
+        <button id="addButton" class="btn btn-primary" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+          </svg>
+          <span id="addBtnText">Add Redirect</span>
+        </button>
+        <button id="cancelEditButton" class="btn btn-secondary" type="button" style="display: none;">Cancel</button>
       </div>
-    </div>
+    </section>
     
-    <div class="list-section">
-      <h2>Configured Redirects</h2>
+    <!-- Configured Redirects List Section -->
+    <section class="list-section" aria-labelledby="list-section-heading">
+      <div class="section-header">
+        <h2 id="list-section-heading">
+          <span class="section-indicator"></span>
+          Configured Redirects
+        </h2>
+      </div>
+      
       <div id="redirectsList"></div>
-      <div id="emptyMessage" class="empty-message">No redirects configured</div>
-    </div>
+      
+      <div id="emptyMessage" class="empty-message">
+        <div class="empty-icon-clay" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+          </svg>
+        </div>
+        <div class="empty-message-title">No redirects configured</div>
+        <div class="empty-message-subtitle">Add your first domain swap rule above to get started</div>
+      </div>
+    </section>
     
-    <div class="footer">
-      <button id="exportButton" class="btn btn-secondary"><iconify-icon icon="mdi:download" width="18"></iconify-icon> Export</button>
-      <button id="importButton" class="btn btn-secondary"><iconify-icon icon="mdi:upload" width="18"></iconify-icon> Import</button>
+    <!-- Footer Utility Bar -->
+    <footer class="footer">
+      <button id="exportButton" class="btn btn-secondary" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Export
+      </button>
+      <button id="importButton" class="btn btn-secondary" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        Import
+      </button>
       <input type="file" id="importFile" accept=".json" style="display: none;">
-    </div>
+    </footer>
   </div>
   
-  <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>
