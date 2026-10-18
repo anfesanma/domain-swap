@@ -57,6 +57,15 @@ const editIdInput = document.getElementById('editId');
 const addBtnText = document.getElementById('addBtnText');
 const cancelEditButton = document.getElementById('cancelEditButton');
 
+// Direct JSON Import Section Elements
+const importSection = document.getElementById('importSection');
+const closeImportSectionBtn = document.getElementById('closeImportSectionBtn');
+const importJsonTextarea = document.getElementById('importJsonTextarea');
+const triggerFilePicker = document.getElementById('triggerFilePicker');
+const mergeImportButton = document.getElementById('mergeImportButton');
+const overwriteImportButton = document.getElementById('overwriteImportButton');
+const importFeedback = document.getElementById('importFeedback');
+
 // Load and display redirects when the popup opens
 document.addEventListener('DOMContentLoaded', loadRedirects);
 
@@ -73,10 +82,49 @@ toDomainInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') addRedirect();
 });
 
-// Setup Export/Import functionality
+// Setup Export functionality
 exportButton.addEventListener('click', exportConfig);
-importButton.addEventListener('click', () => importFile.click());
-importFile.addEventListener('change', importConfig);
+
+// Setup Import Section Toggle (Solves popup closure bug when opening native file picker)
+importButton.addEventListener('click', toggleImportSection);
+if (closeImportSectionBtn) {
+  closeImportSectionBtn.addEventListener('click', () => {
+    importSection.classList.remove('active');
+  });
+}
+
+// Fallback file picker inside import section
+if (triggerFilePicker) {
+  triggerFilePicker.addEventListener('click', () => importFile.click());
+}
+importFile.addEventListener('change', handleFileSelected);
+
+// Merge / Overwrite JSON Import Actions
+if (mergeImportButton) {
+  mergeImportButton.addEventListener('click', () => processJsonImport('merge'));
+}
+if (overwriteImportButton) {
+  overwriteImportButton.addEventListener('click', () => processJsonImport('overwrite'));
+}
+
+/**
+ * Toggles the direct JSON paste section
+ */
+function toggleImportSection() {
+  if (!importSection) return;
+  const isCurrentlyActive = importSection.classList.contains('active');
+  
+  if (isCurrentlyActive) {
+    importSection.classList.remove('active');
+  } else {
+    importSection.classList.add('active');
+    hideFeedback();
+    importJsonTextarea.focus();
+    setTimeout(() => {
+      importSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 50);
+  }
+}
 
 /**
  * Loads redirects from Chrome's sync storage.
@@ -341,12 +389,23 @@ function isValidDomain(domain) {
 }
 
 /**
- * Exports current configuration as a JSON file
+ * Exports current configuration as a JSON file and copies to clipboard
  */
 async function exportConfig() {
   const { redirects = [] } = await storage.get('redirects');
   
   const dataStr = JSON.stringify(redirects, null, 2);
+  
+  // Copy to clipboard for easy pasting without saving file
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(dataStr);
+    }
+  } catch (err) {
+    console.debug('Clipboard copy skipped', err);
+  }
+
+  // Trigger file download
   const blob = new Blob([dataStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   
@@ -356,82 +415,150 @@ async function exportConfig() {
   a.click();
   
   URL.revokeObjectURL(url);
+
+  // Visual feedback on export button
+  const originalHtml = exportButton.innerHTML;
+  exportButton.innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    Exported & Copied!
+  `;
+  setTimeout(() => {
+    exportButton.innerHTML = originalHtml;
+  }, 2200);
 }
 
 /**
- * Imports configuration from a JSON file
- * @param {Event} event 
+ * Handles file selection from the fallback file picker
  */
-async function importConfig(event) {
+function handleFileSelected(event) {
   const file = event.target.files[0];
   if (!file) return;
   
   const reader = new FileReader();
-  reader.onload = async (e) => {
-    try {
-      const importedRedirects = JSON.parse(e.target.result);
-      
-      // Validate structure
-      if (!Array.isArray(importedRedirects)) {
-        alert('Invalid configuration file format.');
-        return;
-      }
-      
-      // Validate each redirect object
-      const isValid = importedRedirects.every(r => 
-        r.id && r.from && r.to && typeof r.enabled === 'boolean'
-      );
-      
-      if (!isValid) {
-        alert('The file contains incorrectly formatted redirects.');
-        return;
-      }
-      
-      // Ask what to do with the existing configured rules
-      const mode = confirm(
-        'Import Configuration:\n\n' +
-        '[OK] = Overwrite current configuration\n' +
-        '[Cancel] = Keep current and append imported rules (Merge)'
-      );
-      
-      if (!confirm('Are you sure you want to proceed with the import?')) {
-        event.target.value = '';
-        return;
-      }
-      
-      let finalRedirects;
-      if (mode) {
-        finalRedirects = importedRedirects;
-      } else {
-        const { redirects = [] } = await storage.get('redirects');
-        const combinedMap = new Map();
-        
-        redirects.forEach(r => combinedMap.set(r.to, { ...r, from: Array.isArray(r.from) ? r.from : [r.from] }));
-        let maxId = redirects.length > 0 ? Math.max(...redirects.map(r => r.id)) : 0;
-        
-        importedRedirects.forEach(imported => {
-          const importedFroms = Array.isArray(imported.from) ? imported.from : [imported.from];
-          if (combinedMap.has(imported.to)) {
-             const existing = combinedMap.get(imported.to);
-             existing.from = [...new Set([...existing.from, ...importedFroms])];
-          } else {
-             combinedMap.set(imported.to, { ...imported, id: ++maxId, from: importedFroms });
-          }
-        });
-        
-        finalRedirects = Array.from(combinedMap.values());
-      }
-      
-      await storage.set({ redirects: finalRedirects });
-      loadRedirects();
-      
-      alert(`Configuration successfully imported. ${finalRedirects.length} redirects loaded.`);
-      
-    } catch (error) {
-      alert('Error importing file: ' + error.message);
+  reader.onload = (e) => {
+    if (importJsonTextarea) {
+      importJsonTextarea.value = e.target.result;
+      showFeedback('File loaded into the textarea! Choose "Merge" or "Overwrite" below.', 'success');
     }
   };
-  
   reader.readAsText(file);
   event.target.value = '';
+}
+
+/**
+ * Displays feedback banner in the import section
+ */
+function showFeedback(message, type = 'error') {
+  if (!importFeedback) return;
+  importFeedback.className = `feedback-banner ${type}`;
+  importFeedback.innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      ${type === 'success' 
+        ? '<polyline points="20 6 9 17 4 12"></polyline>' 
+        : '<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>'}
+    </svg>
+    <span>${message}</span>
+  `;
+  importFeedback.style.display = 'flex';
+}
+
+/**
+ * Hides feedback banner
+ */
+function hideFeedback() {
+  if (importFeedback) {
+    importFeedback.style.display = 'none';
+  }
+}
+
+/**
+ * Processes JSON import with either 'merge' or 'overwrite' mode
+ * @param {'merge' | 'overwrite'} mode 
+ */
+async function processJsonImport(mode) {
+  const rawText = importJsonTextarea ? importJsonTextarea.value.trim() : '';
+  
+  if (!rawText) {
+    showFeedback('Please paste JSON configuration text or upload a file first.', 'error');
+    if (importJsonTextarea) importJsonTextarea.focus();
+    return;
+  }
+  
+  let importedRedirects;
+  try {
+    importedRedirects = JSON.parse(rawText);
+  } catch (error) {
+    showFeedback(`Invalid JSON format: ${error.message}`, 'error');
+    return;
+  }
+  
+  // Validate structure
+  if (!Array.isArray(importedRedirects)) {
+    showFeedback('Invalid format: Root must be an array of rule objects.', 'error');
+    return;
+  }
+  
+  // Validate each redirect object
+  const isValid = importedRedirects.every(r => 
+    r && r.from && r.to && (typeof r.enabled === 'boolean' || r.enabled === undefined)
+  );
+  
+  if (!isValid || importedRedirects.length === 0) {
+    showFeedback('JSON contains invalid rules. Each rule must have "from" and "to" fields.', 'error');
+    return;
+  }
+  
+  try {
+    let finalRedirects;
+    
+    if (mode === 'overwrite') {
+      finalRedirects = importedRedirects.map((r, index) => ({
+        id: r.id || (index + 1),
+        from: Array.isArray(r.from) ? r.from : [r.from],
+        to: r.to.replace(/^https?:\/\//, '').replace(/\/$/, ''),
+        enabled: typeof r.enabled === 'boolean' ? r.enabled : true
+      }));
+    } else {
+      // Merge mode
+      const { redirects = [] } = await storage.get('redirects');
+      const combinedMap = new Map();
+      
+      // Load current
+      redirects.forEach(r => combinedMap.set(r.to, { ...r, from: Array.isArray(r.from) ? r.from : [r.from] }));
+      let maxId = redirects.length > 0 ? Math.max(...redirects.map(r => r.id)) : 0;
+      
+      importedRedirects.forEach(imported => {
+        const cleanTo = imported.to.replace(/^https?:\/\//, '').replace(/\/$/, '');
+        const importedFroms = Array.isArray(imported.from) ? imported.from : [imported.from];
+        
+        if (combinedMap.has(cleanTo)) {
+          const existing = combinedMap.get(cleanTo);
+          existing.from = [...new Set([...existing.from, ...importedFroms])];
+        } else {
+          combinedMap.set(cleanTo, {
+            id: ++maxId,
+            from: importedFroms,
+            to: cleanTo,
+            enabled: typeof imported.enabled === 'boolean' ? imported.enabled : true
+          });
+        }
+      });
+      
+      finalRedirects = Array.from(combinedMap.values());
+    }
+    
+    await storage.set({ redirects: finalRedirects });
+    loadRedirects();
+    
+    showFeedback(`Successfully imported! ${finalRedirects.length} rules active.`, 'success');
+    
+    // Automatically reset textarea and close section after a short delay
+    setTimeout(() => {
+      if (importJsonTextarea) importJsonTextarea.value = '';
+      if (importSection) importSection.classList.remove('active');
+    }, 1800);
+    
+  } catch (error) {
+    showFeedback(`Error applying configuration: ${error.message}`, 'error');
+  }
 }

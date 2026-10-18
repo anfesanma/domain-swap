@@ -18,7 +18,7 @@
         </div>
         <h1>Domain Swap</h1>
       </div>
-      <span class="header-badge">v1.1.0</span>
+      <span class="header-badge">v1.1.1</span>
     </header>
     
     <!-- Add / Edit Redirect Section -->
@@ -81,6 +81,56 @@
         </div>
         <div class="empty-message-title">No redirects configured</div>
         <div class="empty-message-subtitle">Add your first domain swap rule above to get started</div>
+      </div>
+    </section>
+
+    <!-- Paste JSON Section (Direct Paste & File Upload) -->
+    <section class="add-section import-section" id="importSection" aria-labelledby="import-section-heading">
+      <div class="section-header">
+        <h2 id="import-section-heading">
+          <span class="section-indicator" style="background: var(--clay-primary-light);"></span>
+          Paste JSON
+        </h2>
+        <button id="closeImportSectionBtn" class="btn-icon" type="button" title="Close" style="padding: 4px 8px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 10px;">
+        <textarea id="importJsonTextarea" class="clay-textarea" spellcheck="false" placeholder='[
+  {
+    "from": ["old-domain.com", "legacy-site.org"],
+    "to": "new-destination.com",
+    "enabled": true
+  }
+]'></textarea>
+      </div>
+
+      <div class="import-file-row">
+        <button id="triggerFilePicker" class="btn btn-secondary btn-upload" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          Upload a File
+        </button>
+      </div>
+
+      <div id="importFeedback" class="feedback-banner"></div>
+
+      <div class="form-actions" style="margin-top: 12px;">
+        <button id="mergeImportButton" class="btn btn-secondary" type="button" title="Merge rules">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Merge
+        </button>
+        <button id="overwriteImportButton" class="btn btn-primary" type="button" title="Overwrite rules">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Overwrite
+        </button>
       </div>
     </section>
     
