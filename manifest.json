@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Domain Swap",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Automatically redirects specific domains to other configurable destinations",
   "permissions": [
     "storage",
