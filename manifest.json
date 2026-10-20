@@ -5,7 +5,7 @@
   "description": "Automatically redirects specific domains to other configurable destinations",
   "browser_specific_settings": {
     "gecko": {
-      "id": "domain-swap@local",
+      "id": "domain-swap@anfesanma",
       "data_collection_permissions": {
         "required": [
           "none"
