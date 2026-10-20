@@ -11,21 +11,22 @@
     <!-- Header -->
     <header class="app-header">
       <div class="brand-wrapper">
-        <div class="brand-icon-clay" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
-          </svg>
+        <div class="brand-icon-clay" title="Domain Swap">
+          <img src="icon128.webp" alt="Domain Swap Icon" class="brand-icon-img">
         </div>
-        <h1>Domain Swap</h1>
+        <div class="brand-info">
+          <h1>Domain Swap</h1>
+          <span class="brand-tagline">Dynamic Domain Redirector</span>
+        </div>
       </div>
-      <span class="header-badge">v1.1.1</span>
+      <span class="header-badge">v1.2.0</span>
     </header>
     
     <!-- Add / Edit Redirect Section -->
     <section class="add-section" aria-labelledby="add-section-heading">
       <div class="section-header">
         <h2 id="add-section-heading">
-          <span class="section-indicator"></span>
+          <span class="section-indicator section-indicator-cyan"></span>
           Add / Edit Redirect
         </h2>
       </div>
@@ -34,7 +35,7 @@
       
       <div class="form-group">
         <label for="fromDomain">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+          <svg class="label-icon-amber" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
           From (domain):
         </label>
         <input type="text" id="fromDomain" placeholder="e.g. domain1.com, domain2.com" autocomplete="off" spellcheck="false">
@@ -43,7 +44,7 @@
       
       <div class="form-group">
         <label for="toDomain">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <svg class="label-icon-cyan" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
           To (domain):
         </label>
         <input type="text" id="toDomain" placeholder="e.g. new-destination.com" autocomplete="off" spellcheck="false">
@@ -65,7 +66,7 @@
     <section class="list-section" aria-labelledby="list-section-heading">
       <div class="section-header">
         <h2 id="list-section-heading">
-          <span class="section-indicator"></span>
+          <span class="section-indicator section-indicator-amber"></span>
           Configured Redirects
         </h2>
       </div>
@@ -150,6 +151,56 @@
       </button>
       <input type="file" id="importFile" accept=".json" style="display: none;">
     </footer>
+
+    <template id="redirectItemTemplate">
+      <div class="rule-card-inner">
+        <!-- Top Row: Status and Actions -->
+        <div class="rule-card-header">
+          <div class="rule-status-group">
+            <label class="toggle-switch" title="Toggle On/Off">
+              <input type="checkbox" class="toggle-checkbox">
+              <span class="slider"></span>
+            </label>
+            <span class="status-pill"></span>
+          </div>
+          
+          <div class="rule-actions-group">
+            <button class="btn-icon btn-edit" title="Edit Rule" type="button">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> 
+              Edit
+            </button>
+            <button class="btn-icon btn-delete" title="Delete Rule" type="button">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg> 
+              Delete
+            </button>
+          </div>
+        </div>
+        
+        <!-- Routing Flow Section -->
+        <div class="routing-flow">
+          <div class="flow-label">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+            From origins:
+          </div>
+          <div class="flow-chips-group origin-chips"></div>
+
+          <div class="routing-separator">
+            <div class="routing-separator-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+            </div>
+          </div>
+          
+          <div class="flow-label">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Redirects to:
+          </div>
+          <div class="domain-chip domain-chip-target">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span class="target-text"></span>
+          </div>
+        </div>
+      </div>
+    </template>
   </div>
   
   <script src="popup.js"></script>

@@ -1,0 +1,7 @@
+# Package and build artifacts
+*.xpi
+*.zip
+
+# Operating System files
+.DS_Store
+Thumbs.db
