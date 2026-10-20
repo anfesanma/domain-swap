@@ -6,7 +6,7 @@
   
   **Lightweight, lightning-fast browser extension to dynamically redirect web domains with full path and query preservation.**
 
-  [![Version](https://img.shields.io/badge/version-1.2.0-blue.svg?style=for-the-badge&logo=semver&logoColor=white)](manifest.json)
+  [![Version](https://img.shields.io/badge/version-1.2.1-blue.svg?style=for-the-badge&logo=semver&logoColor=white)](manifest.json)
   [![Manifest V3](https://img.shields.io/badge/manifest-v3-success.svg?style=for-the-badge&logo=googlechrome&logoColor=white)](manifest.json)
   [![Mozilla Add-ons Linter](https://img.shields.io/badge/AMO%20Linter-Passing%20(0%20errors)-brightgreen.svg?style=for-the-badge&logo=firefoxbrowser&logoColor=white)](https://addons.mozilla.org)
   [![Privacy](https://img.shields.io/badge/privacy-100%25%20local-informational.svg?style=for-the-badge&logo=shield&logoColor=white)](#-privacy--security)

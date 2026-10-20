@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
   "name": "Domain Swap",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Automatically redirects specific domains to other configurable destinations",
   "browser_specific_settings": {
     "gecko": {
-      "id": "domain-swap@anfesanma",
+      "id": "domain-swap@anfesanma.dev",
       "data_collection_permissions": {
         "required": [
           "none"
