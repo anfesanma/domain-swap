@@ -133,7 +133,7 @@ async function loadRedirects() {
   const { redirects } = await storage.get('redirects');
   
   if (!redirects || redirects.length === 0) {
-    redirectsList.innerHTML = '';
+    redirectsList.replaceChildren();
     emptyMessage.style.display = 'block';
     return;
   }
@@ -159,83 +159,82 @@ function escapeHTML(str) {
  * @param {Array} redirects - Array of redirect objects
  */
 function displayRedirects(redirects) {
-  redirectsList.innerHTML = '';
+  redirectsList.replaceChildren();
+  const template = document.getElementById('redirectItemTemplate');
   
   redirects.forEach(redirect => {
     const item = document.createElement('div');
     item.className = 'redirect-item';
-    item.setAttribute('data-id', redirect.id);
+    item.setAttribute('data-id', String(redirect.id));
     
-    const fromArray = Array.isArray(redirect.from) ? redirect.from : [redirect.from];
+    if (template) {
+      item.appendChild(template.content.cloneNode(true));
+    }
     
-    item.innerHTML = `
-      <div class="rule-card-inner">
-        <!-- Top Row: Status and Actions -->
-        <div class="rule-card-header">
-          <div class="rule-status-group">
-            <label class="toggle-switch" title="Toggle On/Off">
-              <input type="checkbox" class="toggle-checkbox" ${redirect.enabled ? 'checked' : ''}>
-              <span class="slider"></span>
-            </label>
-            <span class="status-pill ${redirect.enabled ? 'status-active' : 'status-inactive'}">
-              ${redirect.enabled ? 'ACTIVE' : 'INACTIVE'}
-            </span>
-          </div>
-          
-          <div class="rule-actions-group">
-            <button class="btn-icon btn-edit" title="Edit Rule" type="button">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> 
-              Edit
-            </button>
-            <button class="btn-icon btn-delete" title="Delete Rule" type="button">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg> 
-              Delete
-            </button>
-          </div>
-        </div>
-        
-        <!-- Routing Flow Section -->
-        <div class="routing-flow">
-          <div class="flow-label">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
-            From origins:
-          </div>
-          <div class="flow-chips-group">
-            ${fromArray.map(domain => `
-              <div class="domain-chip domain-chip-origin" title="${escapeHTML(domain)}">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="4"/></svg>
-                <span>${escapeHTML(domain)}</span>
-              </div>
-            `).join('')}
-          </div>
-
-          <div class="routing-separator">
-            <div class="routing-separator-badge">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
-            </div>
-          </div>
-          
-          <div class="flow-label">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            Redirects to:
-          </div>
-          <div class="domain-chip domain-chip-target" title="${escapeHTML(redirect.to)}">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            <span>${escapeHTML(redirect.to)}</span>
-          </div>
-        </div>
-      </div>
-    `;
-    
-    // Bind Event Listeners
+    // Status & Toggle
     const toggle = item.querySelector('.toggle-checkbox');
-    toggle.addEventListener('change', () => toggleRedirect(redirect.id));
-    
+    if (toggle) {
+      toggle.checked = Boolean(redirect.enabled);
+      toggle.addEventListener('change', () => toggleRedirect(redirect.id));
+    }
+
+    const statusPill = item.querySelector('.status-pill');
+    if (statusPill) {
+      statusPill.className = `status-pill ${redirect.enabled ? 'status-active' : 'status-inactive'}`;
+      statusPill.textContent = redirect.enabled ? 'ACTIVE' : 'INACTIVE';
+    }
+
+    // Origin Chips
+    const originChipsGroup = item.querySelector('.origin-chips');
+    if (originChipsGroup) {
+      const fromArray = Array.isArray(redirect.from) ? redirect.from : [redirect.from];
+      fromArray.forEach(domain => {
+        const chip = document.createElement('div');
+        chip.className = 'domain-chip domain-chip-origin';
+        chip.title = domain;
+
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('width', '12');
+        svg.setAttribute('height', '12');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.setAttribute('stroke-width', '2.5');
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', '12');
+        circle.setAttribute('cy', '12');
+        circle.setAttribute('r', '4');
+        svg.appendChild(circle);
+
+        const span = document.createElement('span');
+        span.textContent = domain;
+
+        chip.append(svg, span);
+        originChipsGroup.appendChild(chip);
+      });
+    }
+
+    // Target Chip
+    const targetChip = item.querySelector('.domain-chip-target');
+    if (targetChip) {
+      targetChip.title = redirect.to;
+    }
+    const targetText = item.querySelector('.target-text');
+    if (targetText) {
+      targetText.textContent = redirect.to;
+    }
+
+    // Action buttons
     const editBtn = item.querySelector('.btn-edit');
-    editBtn.addEventListener('click', () => editRedirect(redirect.id));
+    if (editBtn) {
+      editBtn.addEventListener('click', () => editRedirect(redirect.id));
+    }
     
     const deleteBtn = item.querySelector('.btn-delete');
-    deleteBtn.addEventListener('click', () => deleteRedirect(redirect.id));
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', () => deleteRedirect(redirect.id));
+    }
     
     redirectsList.appendChild(item);
   });
@@ -417,13 +416,22 @@ async function exportConfig() {
   URL.revokeObjectURL(url);
 
   // Visual feedback on export button
-  const originalHtml = exportButton.innerHTML;
-  exportButton.innerHTML = `
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-    Exported & Copied!
-  `;
+  const originalNodes = Array.from(exportButton.childNodes).map(n => n.cloneNode(true));
+  
+  const checkSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  checkSvg.setAttribute('width', '16');
+  checkSvg.setAttribute('height', '16');
+  checkSvg.setAttribute('viewBox', '0 0 24 24');
+  checkSvg.setAttribute('fill', 'none');
+  checkSvg.setAttribute('stroke', 'currentColor');
+  checkSvg.setAttribute('stroke-width', '2.5');
+  const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+  polyline.setAttribute('points', '20 6 9 17 4 12');
+  checkSvg.appendChild(polyline);
+
+  exportButton.replaceChildren(checkSvg, document.createTextNode(' Exported & Copied!'));
   setTimeout(() => {
-    exportButton.innerHTML = originalHtml;
+    exportButton.replaceChildren(...originalNodes);
   }, 2200);
 }
 
@@ -451,14 +459,46 @@ function handleFileSelected(event) {
 function showFeedback(message, type = 'error') {
   if (!importFeedback) return;
   importFeedback.className = `feedback-banner ${type}`;
-  importFeedback.innerHTML = `
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-      ${type === 'success' 
-        ? '<polyline points="20 6 9 17 4 12"></polyline>' 
-        : '<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>'}
-    </svg>
-    <span>${message}</span>
-  `;
+  importFeedback.replaceChildren();
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('width', '16');
+  svg.setAttribute('height', '16');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2.5');
+
+  if (type === 'success') {
+    const polyline = document.createElementNS(svgNS, 'polyline');
+    polyline.setAttribute('points', '20 6 9 17 4 12');
+    svg.appendChild(polyline);
+  } else {
+    const circle = document.createElementNS(svgNS, 'circle');
+    circle.setAttribute('cx', '12');
+    circle.setAttribute('cy', '12');
+    circle.setAttribute('r', '10');
+
+    const line1 = document.createElementNS(svgNS, 'line');
+    line1.setAttribute('x1', '12');
+    line1.setAttribute('y1', '8');
+    line1.setAttribute('x2', '12');
+    line1.setAttribute('y2', '12');
+
+    const line2 = document.createElementNS(svgNS, 'line');
+    line2.setAttribute('x1', '12');
+    line2.setAttribute('y1', '16');
+    line2.setAttribute('x2', '12.01');
+    line2.setAttribute('y2', '16');
+
+    svg.append(circle, line1, line2);
+  }
+
+  const span = document.createElement('span');
+  span.textContent = message;
+
+  importFeedback.append(svg, span);
   importFeedback.style.display = 'flex';
 }
 
